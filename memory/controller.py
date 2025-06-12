@@ -50,9 +50,9 @@ class ProgressController:
             self.progress.completed_levels.append(level)
             logging.debug(f"Level {level} added to completed levels.")
 
-        prev_score = self.progress.max_score.get(str(level), 0)
+        prev_score = self.progress.performance_score.get(str(level), 0)
         if score > prev_score:
-            self.progress.max_score[str(level)] = score
+            self.progress.performance_score[str(level)] = score
             logging.debug(
                 f"Score for level {level} updated from {prev_score} to {score}."
             )
@@ -66,19 +66,19 @@ class ProgressController:
 
         logging.info(f"Level {level} completed with score {score}. Progress saved.")
 
-    def set_max_score(self, level: int, score: int) -> None:
+    def set_performance_score(self, level: int, score: int) -> None:
         """Directly update the maximum score for a level."""
         self._require_progress()
         if level < 1 or score < 0:
             raise ValueError("Invalid level or score.")
-        self.progress.max_score[str(level)] = score
+        self.progress.performance_score[str(level)] = score
         self.adapter.save()
         logging.info(f"Max score for level {level} set to {score}.")
 
-    def get_max_score(self, level: int) -> int:
+    def get_performance_score(self, level: int) -> int:
         """Return the highest score achieved for a specific level."""
         self._require_progress()
-        return self.progress.max_score.get(str(level), 0)
+        return self.progress.performance_score.get(str(level), 0)
 
     def get_completed_levels(self) -> List[int]:
         """Return a list of levels the player has completed."""

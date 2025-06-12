@@ -24,7 +24,7 @@ class Timestamps:
 class Progress:
     unlocked_level: int = 1
     completed_levels: List[int] = field(default_factory=list)
-    max_score: Dict[str, int] = field(default_factory=dict)
+    performance_score: Dict[str, int] = field(default_factory=dict)
     settings: Settings = field(default_factory=Settings)
     timestamps: Timestamps = field(default_factory=Timestamps)
 
@@ -34,7 +34,7 @@ class Progress:
         return cls(
             unlocked_level=data.get("unlocked_level", 1),
             completed_levels=data.get("completed_levels", []),
-            max_score=data.get("max_score", {}),
+            performance_score=data.get("performance_score", {}),
             settings=Settings(**data.get("settings", {})),
             timestamps=Timestamps(**data.get("timestamps", {})),
         )

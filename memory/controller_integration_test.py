@@ -13,7 +13,7 @@ def temp_progress_file(**kwargs: Any) -> Generator[Path, None, None]:
         "max_level": 5,
         "unlocked_level": 3,
         "completed_levels": [1, 2],
-        "max_score": {"1": 3, "2": 5},
+        "performance_score": {"1": 3, "2": 5},
         "settings": {"sounds": True},
         "timestamps": {"last_played": "2025-06-11T18:00:00Z"},
     }
@@ -57,7 +57,7 @@ def test_complete_level_adds_completed_level_and_updates_score(
     progress = controller.adapter.read()
     assert 3 in progress.completed_levels, "Level 3 should be in completed levels"
     assert (
-        progress.max_score.get("3") == 10
+        progress.performance_score.get("3") == 10
     ), "Score for level 3 should be updated to 10"
     assert progress.unlocked_level == 4, "Unlocked level should update to 4"
     assert (
@@ -85,16 +85,16 @@ def test_complete_level_updates_score_only_if_higher(temp_progress_file: Path) -
     controller = ProgressController(filepath=str(temp_progress_file))
 
     controller.complete_level(level=2, score=5)
-    assert controller.adapter.read().max_score["2"] == 5
+    assert controller.adapter.read().performance_score["2"] == 5
 
     controller.complete_level(level=2, score=3)
     assert (
-        controller.adapter.read().max_score["2"] == 5
+        controller.adapter.read().performance_score["2"] == 5
     ), "Score should not update to lower value"
 
     controller.complete_level(level=2, score=10)
     assert (
-        controller.adapter.read().max_score["2"] == 10
+        controller.adapter.read().performance_score["2"] == 10
     ), "Score should update to higher value"
 
 
@@ -126,47 +126,47 @@ def test_complete_level_raises_error_for_invalid_level_and_score(
         controller.complete_level(level=1, score=-1)
 
 
-def test_set_max_score_updates_score_correctly(temp_progress_file: Path) -> None:
+def test_set_performance_score_updates_score_correctly(temp_progress_file: Path) -> None:
     controller = ProgressController(filepath=str(temp_progress_file))
 
-    controller.set_max_score(level=1, score=50)
+    controller.set_performance_score(level=1, score=50)
     progress = controller.adapter.read()
     assert (
-        progress.max_score.get("1") == 50
+        progress.performance_score.get("1") == 50
     ), "Max score for level 1 should be updated to 50"
 
 
-def test_set_max_score_overwrites_existing_score(temp_progress_file: Path) -> None:
+def test_set_performance_score_overwrites_existing_score(temp_progress_file: Path) -> None:
     controller = ProgressController(filepath=str(temp_progress_file))
 
-    controller.set_max_score(level=2, score=30)
-    assert controller.adapter.read().max_score.get("2") == 30
+    controller.set_performance_score(level=2, score=30)
+    assert controller.adapter.read().performance_score.get("2") == 30
 
-    controller.set_max_score(level=2, score=70)
-    assert controller.adapter.read().max_score.get("2") == 70
+    controller.set_performance_score(level=2, score=70)
+    assert controller.adapter.read().performance_score.get("2") == 70
 
 
-def test_set_max_score_raises_error_for_invalid_level(temp_progress_file: Path) -> None:
+def test_set_performance_score_raises_error_for_invalid_level(temp_progress_file: Path) -> None:
     controller = ProgressController(filepath=str(temp_progress_file))
 
     with pytest.raises(ValueError, match="Invalid level or score."):
-        controller.set_max_score(level=0, score=10)
+        controller.set_performance_score(level=0, score=10)
 
 
-def test_set_max_score_raises_error_for_negative_score(
+def test_set_performance_score_raises_error_for_negative_score(
     temp_progress_file: Path,
 ) -> None:
     controller = ProgressController(filepath=str(temp_progress_file))
 
     with pytest.raises(ValueError, match="Invalid level or score."):
-        controller.set_max_score(level=1, score=-5)
+        controller.set_performance_score(level=1, score=-5)
 
 
-def test_get_max_score_returns_correct_value(temp_progress_file: Path) -> None:
+def test_get_performance_score_returns_correct_value(temp_progress_file: Path) -> None:
     controller = ProgressController(filepath=str(temp_progress_file))
 
-    assert controller.get_max_score(1) == 3
-    assert controller.get_max_score(99) == 0
+    assert controller.get_performance_score(1) == 3
+    assert controller.get_performance_score(99) == 0
 
 
 def test_get_completed_levels_returns_correct_list(temp_progress_file: Path) -> None:
