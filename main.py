@@ -3,14 +3,9 @@ from memory.controller import ProgressController
 from ui.menu import MenuUI
 from ui.playing_level import PlayingLevelUI
 from resources.image_handler import load_images_for_level
+from datetime import datetime
+from game.game_engine import calculate_performance_score
 
-def on_level_complete(level: int):
-    """Callback called when a level is completed."""
-    logging.info(f"Level {level} completed!")
-    controller.complete_level(level)
-    controller.unlock_next_level(level + 1)
-
-    app.refresh_menu()
 
 def start_level(level: int) -> None:
     logging.info(f"Level {level} selected! Starting the level...")
@@ -21,9 +16,20 @@ def start_level(level: int) -> None:
         return
 
     correct_order = [0, 1, 2]
+    start_time = datetime.utcnow()
 
-    playing_window = PlayingLevelUI(app, level, images, correct_order, on_level_complete)
+    def on_level_complete(level_completed: int):
+        end_time = datetime.utcnow()
+        score = calculate_performance_score(start_time, end_time)
+        controller.complete_level(level_completed, score)
+        logging.info(f"Level {level_completed} completed with score {score}")
+        app.refresh_menu()
+
+    playing_window = PlayingLevelUI(
+        app, level, images, correct_order, on_level_complete
+    )
     playing_window.grab_set()
+
 
 if __name__ == "__main__":
     logging.basicConfig(

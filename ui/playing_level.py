@@ -4,6 +4,7 @@ import random
 import logging
 from typing import List, Callable
 
+
 class PlayingLevelUI(tk.Toplevel):
     def __init__(
         self,
@@ -15,9 +16,10 @@ class PlayingLevelUI(tk.Toplevel):
     ):
         super().__init__(master)
         self.title(f"Nivel {level_number}")
+        self.configure(bg="#FFF6E5")  # Fondo cálido tipo pastel
         self.level_number = level_number
         self.images = images
-        self.correct_order = correct_order  # list de índices de imágenes en orden correcto, ej [0,1,2]
+        self.correct_order = correct_order
         self.on_level_complete = on_level_complete
 
         self.selected_order: List[int] = []
@@ -25,16 +27,22 @@ class PlayingLevelUI(tk.Toplevel):
         self.setup_ui()
 
     def setup_ui(self):
-        # Mostrar número de nivel
-        label = tk.Label(self, text=f"Nivel {self.level_number}", font=("Comic Sans MS", 24, "bold"))
+        # Título de nivel
+        label = tk.Label(
+            self,
+            text=f"Nivel {self.level_number}",
+            font=("Comic Sans MS", 24, "bold"),
+            bg="#FFF6E5",
+            fg="#5D5D5D",
+        )
         label.pack(pady=10)
 
         # Mezclar imágenes para mostrar
         self.shuffled_indices = list(range(len(self.images)))
         random.shuffle(self.shuffled_indices)
 
-        # Contenedor para botones de imágenes
-        self.buttons_frame = tk.Frame(self)
+        # Contenedor para imágenes
+        self.buttons_frame = tk.Frame(self, bg="#FFF6E5")
         self.buttons_frame.pack(pady=10)
 
         self.image_buttons = []
@@ -45,40 +53,51 @@ class PlayingLevelUI(tk.Toplevel):
                 command=lambda i=idx: self.image_clicked(i),
                 borderwidth=2,
                 relief=tk.RAISED,
+                bg="#FFF6E5",
+                activebackground="#FFE0B2",
             )
             btn.pack(side=tk.LEFT, padx=10)
             self.image_buttons.append(btn)
 
-        # Contenedor para mostrar orden seleccionado
-        self.selection_label = tk.Label(self, text="Selecciona el orden:", font=("Comic Sans MS", 16))
+        # Texto de selección
+        self.selection_label = tk.Label(
+            self,
+            text="Selecciona el orden:",
+            font=("Comic Sans MS", 16),
+            bg="#FFF6E5",
+            fg="#5D5D5D",
+        )
         self.selection_label.pack(pady=10)
 
-        self.selected_order_frame = tk.Frame(self)
+        # Vista previa del orden
+        self.selected_order_frame = tk.Frame(self, bg="#FFF6E5")
         self.selected_order_frame.pack(pady=5)
-
-        # Botón para validar selección
-        self.validate_btn = tk.Button(self, text="Validar Orden", command=self.validate_order, state=tk.DISABLED)
-        self.validate_btn.pack(pady=10)
 
     def image_clicked(self, image_idx):
         if len(self.selected_order) >= len(self.images):
-            return  # Ya seleccionó las 3 imágenes
+            return
 
         logging.info(f"Imagen seleccionada: {image_idx}")
         self.selected_order.append(image_idx)
         self.update_selected_order_view()
 
         if len(self.selected_order) == len(self.images):
-            self.validate_btn.config(state=tk.NORMAL)
+            self.after(
+                500, self.validate_order
+            )  # Dar un respiro de 0.5s antes de validar
 
     def update_selected_order_view(self):
-        # Limpiar contenedor
         for widget in self.selected_order_frame.winfo_children():
             widget.destroy()
 
-        # Mostrar las imágenes seleccionadas en orden
         for idx in self.selected_order:
-            lbl = tk.Label(self.selected_order_frame, image=self.images[idx], borderwidth=2, relief=tk.SUNKEN)
+            lbl = tk.Label(
+                self.selected_order_frame,
+                image=self.images[idx],
+                borderwidth=2,
+                relief=tk.SUNKEN,
+                bg="#FFF6E5",
+            )
             lbl.pack(side=tk.LEFT, padx=5)
 
     def validate_order(self):
@@ -87,7 +106,7 @@ class PlayingLevelUI(tk.Toplevel):
         if self.selected_order == self.correct_order:
             messagebox.showinfo("¡Muy bien!", "🎉 ¡Has ordenado correctamente!")
             self.on_level_complete(self.level_number)
-            self.destroy()  # Cerrar ventana nivel
+            self.destroy()
         else:
             messagebox.showerror("Inténtalo de nuevo", "❌ El orden no es correcto.")
             self.reset_level()
@@ -95,4 +114,3 @@ class PlayingLevelUI(tk.Toplevel):
     def reset_level(self):
         self.selected_order = []
         self.update_selected_order_view()
-        self.validate_btn.config(state=tk.DISABLED)

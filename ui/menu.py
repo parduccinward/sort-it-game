@@ -4,7 +4,7 @@ from typing import Callable, List
 
 
 class MenuUI(tk.Tk):
-    MAX_LEVELS = 10
+    MAX_LEVELS = 5
     BUTTON_WIDTH = 20
     BUTTON_HEIGHT = 6
     GRID_COLUMNS = 5
