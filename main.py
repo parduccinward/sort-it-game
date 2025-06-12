@@ -5,6 +5,7 @@ from ui.playing_level import PlayingLevelUI
 from resources.image_handler import load_images_for_level
 from datetime import datetime
 from game.game_engine import calculate_performance_score
+from resources.sound_handler import SoundHandler
 
 
 def start_level(level: int) -> None:
@@ -45,6 +46,9 @@ if __name__ == "__main__":
                 btn.destroy()
             app.level_buttons.clear()
             app.create_widgets()
+
+        sound_handler = SoundHandler()
+        sound_handler.play_background_music()
 
         app.refresh_menu = refresh_menu
 
