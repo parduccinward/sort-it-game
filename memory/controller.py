@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional
 from datetime import datetime
 
-from db import ProgressJsonAdapter, Settings, Progress
+from .db import ProgressJsonAdapter, Settings, Progress
 
 
 class ProgressController:
