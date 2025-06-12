@@ -1,8 +1,13 @@
-from dataclasses import dataclass, field
+import logging
+from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional
 import json
 from pathlib import Path
-from dataclasses import asdict
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
 
 
 @dataclass
@@ -17,7 +22,7 @@ class Timestamps:
 
 @dataclass
 class Progress:
-    max_level: int = 1
+    unlocked_level: int = 1
     completed_levels: List[int] = field(default_factory=list)
     max_score: Dict[str, int] = field(default_factory=dict)
     settings: Settings = field(default_factory=Settings)
@@ -27,7 +32,7 @@ class Progress:
     def from_dict(cls, data: dict) -> "Progress":
         """Convert a dictionary into a Progress instance."""
         return cls(
-            max_level=data.get("max_level", 1),
+            unlocked_level=data.get("unlocked_level", 1),
             completed_levels=data.get("completed_levels", []),
             max_score=data.get("max_score", {}),
             settings=Settings(**data.get("settings", {})),
@@ -43,7 +48,7 @@ class ProgressJsonAdapter:
     def load(self) -> Progress:
         """Load progress from the JSON file."""
         if not self.filepath.exists():
-            print("File does not exist. Creating new progress.")
+            logging.info("File does not exist. Creating new progress.")
             self.progress = Progress()
             return self.progress
 
@@ -51,9 +56,9 @@ class ProgressJsonAdapter:
             with open(self.filepath, "r", encoding="utf-8") as f:
                 data = json.load(f)
             self.progress = Progress.from_dict(data)
-            print("Progress loaded successfully.")
+            logging.info("Progress loaded successfully.")
         except (json.JSONDecodeError, IOError) as e:
-            print(f"Error loading progress: {e}. Resetting progress.")
+            logging.error(f"Error loading progress: {e}. Resetting progress.")
             self.progress = Progress()
         return self.progress
 
@@ -64,9 +69,9 @@ class ProgressJsonAdapter:
         try:
             with open(self.filepath, "w", encoding="utf-8") as f:
                 json.dump(asdict(self.progress), f, indent=4)
-            print("Progress saved successfully.")
+            logging.info("Progress saved successfully.")
         except IOError as e:
-            print(f"Error saving progress: {e}")
+            logging.error(f"Error saving progress: {e}")
 
     def create(self, progress: Progress) -> None:
         """Create new progress and save it to the file."""
@@ -85,8 +90,8 @@ class ProgressJsonAdapter:
             self.load()
         for key, value in kwargs.items():
             if hasattr(self.progress, key):
-                if key == "max_level" and not isinstance(value, int):
-                    raise ValueError("max_level must be an integer")
+                if key == "unlocked_level" and not isinstance(value, int):
+                    raise ValueError("unlocked_level must be an integer")
                 if key == "completed_levels" and not isinstance(value, list):
                     raise ValueError("completed_levels must be a list")
                 setattr(self.progress, key, value)
@@ -98,11 +103,11 @@ class ProgressJsonAdapter:
         """Delete the progress file and reset in-memory progress."""
         if self.filepath.exists():
             self.filepath.unlink()
-            print("Progress file deleted.")
+            logging.info("Progress file deleted.")
         self.progress = None
 
     def reset(self) -> None:
         """Reset progress to default and save it to the file."""
         self.progress = Progress()
         self.save()
-        print("Progress reset to default.")
+        logging.info("Progress reset to default.")
