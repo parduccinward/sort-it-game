@@ -27,7 +27,7 @@ class MenuUI(tk.Tk):
 
     def __init__(self, controller, start_level_callback: Callable[[int], None]):
         super().__init__()
-        self.title("🎮 Fun Game Menu 🎉")
+        self.title("🎮 Menu Juego para Ordenar 🎉")
         self.controller = controller
         self.start_level_callback = start_level_callback
 
